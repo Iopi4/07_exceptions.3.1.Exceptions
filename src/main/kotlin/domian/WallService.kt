@@ -6,6 +6,7 @@ package ru.netology.domian
  *
  * Домашнее задание к занятию «3.1. Исключения»
  * Задача №1.PostNotFoundException - добавить метод createComment
+ * Задача №2. JUnit — тесты на createComment
  */
 
 object WallService {
@@ -54,6 +55,9 @@ object WallService {
         comments.add(newComment)
         return newComment
     }
+
+    //Добавим Getter метод для возвращения комментария к посту по указанному идентификатору
+    fun getCommentsByPost (postId: Int) : List<Comment> = comments.filter { it.postId == postId }
 
     //Метод для просмотра постов
     fun printPosts(){

@@ -1,10 +1,15 @@
 import org.junit.Before
 import org.junit.Test
-import org.junit.Assert.assertTrue
-import org.junit.Assert.assertFalse
-import org.junit.Assert.assertNotEquals
+import org.junit.Assert.*
+import ru.netology.domian.Comment
 import ru.netology.domian.Post
+import ru.netology.domian.PostNotFoundException
 import ru.netology.domian.WallService
+
+/**
+ *
+ * Задача №2. JUnit — тесты на createComment
+ */
 
 class WallServiceTest {
     @Before //Нужен перед каждым тестом, чтобы каждый тест стартовал с чистого WallService
@@ -50,5 +55,36 @@ class WallServiceTest {
         val result = WallService.update(update)
 
         assertFalse(result)
+    }
+    // Тест 1 на createComment: добавление комментария к существующему посту
+    @Test
+    fun commentIsAddedToCorrectPost (){
+        // Готовим два поста, чтобы было из чего выбирать
+        val post1 = WallService.add(Post(fromId = 1, text = "Пост 1"))
+        val post2 = WallService.add(Post(fromId = 1, text = "Пост 2"))
+
+        //Добавим комментарий ко 2-му посту
+        val createdComment = WallService.createComment(postId = post2.id, comment = Comment(fromId = 2, text = "Комментарий посту №2"))
+
+        // Проверяем, что вернулся комментарий с выставленным id и правильным postId
+        assertTrue("id комментария должен быть > 0", createdComment.id > 0)
+        assertEquals("Комментарий должен быть привязан к post2", post2.id, createdComment.postId)
+
+        // Проверяем, что комментарий действительно попал в хранилище и именно к post2
+        val commentsForPost2 = WallService.getCommentsByPost(post2.id)
+        assertEquals(1, commentsForPost2.size)
+        assertEquals(createdComment.id, commentsForPost2.first().id)
+        assertEquals("Комментарий посту №2", commentsForPost2.first().text)
+
+        // У post1 комментариев быть не должно
+        assertTrue(WallService.getCommentsByPost(post1.id).isEmpty())
+    }
+
+    // Тест 2 на createComment: добавление комментария к несуществующему посту
+    @Test(expected = PostNotFoundException::class)
+    fun commentIsAddedToNotExistentPost(){
+        //Добавим комментарий к несуществующему посту, например Post с fromId = 12345
+        //Создавать пост с таким id не будем
+        WallService.createComment(postId = 12345, comment = Comment(fromId = 2, text = "Комментарий к несуществующему посту"))
     }
 }
