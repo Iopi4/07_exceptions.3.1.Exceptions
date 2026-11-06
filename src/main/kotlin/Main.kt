@@ -1,4 +1,5 @@
 package ru.netology
+
 import ru.netology.domian.*
 
 /**
@@ -75,19 +76,38 @@ fun main() {
             is PhotoAttachment -> println("Фото: ${attachment.photo.photo604}")
             is VideoAttachment -> println("Видео: ${attachment.video.title}, Длительность: ${attachment.video.duration} сек")
             is AudioAttachment -> println("Аудио: ${attachment.audio.artist} — ${attachment.audio.title}")
-            is DocAttachment   -> println("Документ: ${attachment.doc.title}")
-            is LinkAttachment  -> println("Ссылка: ${attachment.link.url}")
+            is DocAttachment -> println("Документ: ${attachment.doc.title}")
+            is LinkAttachment -> println("Ссылка: ${attachment.link.url}")
         }
 
     }
 
+    //Добавим комментарий к посту
+    val comment = WallService.createComment(
+        postId = addedPost.id,
+        comment = Comment(fromId = 2, text = "Комментарий к первому посту")
+    )
+    println(comment)
+
+    //отработаем исключение если такого поста нет
+    try {
+        WallService.createComment(
+            postId = 123, comment = Comment(fromId = 3, text = "Комментарий к несуществующему посту")
+        )
+    } catch (exception: PostNotFoundException) {
+        println("Ошибка добавления поста: ${exception.message}")
+    }
+
     //Обновим пост: меняем текст и лайки, id оставляем тот же
-    val updatePost = addedPost.copy(likes = Likes(count = 10)
+    val updatePost = addedPost.copy(
+        likes = Likes(count = 10)
     )
     //Запускаем обновление поста
-    val updateResult = WallService.update(updatePost.copy(attachment = listOf(VideoAttachment(Video(duration = 1800))) ))
+    val updateResult = WallService.update(
+        updatePost.copy(attachment = listOf(VideoAttachment(Video(duration = 1800)))))
     println("Обновленный пост: $updateResult")
 
-    //Выведем все добавленные посты
+    //Выведем все добавленные посты и комментарии к ним
     WallService.printPosts()
+    WallService.printCommentsToPost()
 }
